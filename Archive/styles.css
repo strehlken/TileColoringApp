@@ -1,10 +1,6 @@
 body {
     font-family: Calibri, sans-serif;
     text-align: center;
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    overflow: hidden;
 }
 
 #tile-container {
@@ -32,8 +28,7 @@ body {
 }
 
 #tree-container {
-    height: calc(100vh - 160px); /* Adjust this value based on the header and other elements' height */
-    width: 100%;
+    margin-top: 30px;
 }
 
 .tree-label {
@@ -42,8 +37,15 @@ body {
     font-weight: bold;
 }
 
-#spacing-slider {
-    width: 200px;
-    margin-top: 20px;
-    margin-bottom: 20px;
+.node rect {
+    fill-opacity: 0.3; /* Default light shade */
+}
+
+.link {
+    stroke: #ddd; /* Lighter grey */
+    stroke-width: 2px; /* Thicker lines */
+}
+
+.highlight {
+    fill-opacity: 1; /* Highlighted path full color */
 }

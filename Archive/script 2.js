@@ -42,7 +42,8 @@ function changeColor(event) {
 function generateTree() {
     console.log("Generating tree with vertical spacing:", verticalSpacing);
     const treeContainer = document.getElementById("tree-container");
-    
+    treeContainer.innerHTML = "";
+
     const root = { name: "Root", children: [] };
     buildTree(root, 0);
 
@@ -53,28 +54,18 @@ function generateTree() {
     const rootNode = d3.hierarchy(root);
     treeLayout(rootNode);
 
-    let svg = d3.select("#tree-container").select("svg");
-
-    if (svg.empty()) {
-        svg = d3.select("#tree-container").append("svg")
-            .attr("width", "100%")
-            .attr("height", "100%");
-    }
-
-    let g = svg.select("g");
-
-    if (g.empty()) {
-        g = svg.append("g").attr("transform", zoomTransform);
-        svg.call(d3.zoom().on("zoom", zoomed)); // Apply zoom to SVG only once
-    } else {
-        g.attr("transform", zoomTransform);
-    }
-
-    // Clear previous contents
-    g.selectAll("*").remove();
+    const svg = d3.select("#tree-container").append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .call(d3.zoom().on("zoom", (event) => {
+            zoomTransform = event.transform;
+            svg.attr("transform", event.transform);
+        }))
+        .append("g")
+        .attr("transform", zoomTransform);
 
     // Add column labels
-    g.selectAll(".tree-label")
+    svg.selectAll(".tree-label")
         .data(d3.range(numTiles))
         .enter().append("text")
         .attr("class", "tree-label")
@@ -86,8 +77,8 @@ function generateTree() {
 
     const nodes = rootNode.descendants().slice(1); // Remove root node
 
-    g.selectAll(".link")
-        .data(nodes.slice(1).map(d => d.parent ? { source: d.parent, target: d } : null).filter(d => d && d.source.depth > 0))
+    const link = svg.selectAll(".link")
+        .data(nodes.slice(1).map(d => d.parent ? { source: d.parent, target: d } : null).filter(d => d && d.source.depth > 0)) // Filter out links from root
         .enter().append("line")
         .attr("class", "link")
         .attr("x1", d => d.source.y)
@@ -97,7 +88,7 @@ function generateTree() {
         .style("stroke", "#ddd")
         .style("stroke-width", "2px");
 
-    const node = g.selectAll(".node")
+    const node = svg.selectAll(".node")
         .data(nodes)
         .enter().append("g")
         .attr("class", "node")
@@ -120,11 +111,6 @@ function generateTree() {
         if (currentColor !== nodeColor) return false;
 
         return d.depth === 1 || isUserPath(d.parent); // Check parent if not at the first level
-    }
-
-    function zoomed(event) {
-        zoomTransform = event.transform;
-        g.attr("transform", zoomTransform);
     }
 }
 
